@@ -1,12 +1,16 @@
 import Phaser from "phaser";
 
 import { Preloader } from "./Scene/Preloader";
+import { Game } from "./Scene/Game";
 
 
 
 const config: Phaser.Types.Core.GameConfig = {
-  width: 1280,
-  height: 720,
+  width: 800,
+  height: 600,
+  physics: {
+    default: 'arcade',
+  },
   scene: [
     Preloader,
     Game
@@ -15,4 +19,4 @@ const config: Phaser.Types.Core.GameConfig = {
 }
 
 
-const game = new Phaser.Game(config)
+new Phaser.Game(config)
