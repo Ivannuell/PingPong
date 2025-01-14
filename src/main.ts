@@ -6,10 +6,13 @@ import { Game } from "./Scene/Game";
 
 
 const config: Phaser.Types.Core.GameConfig = {
-  width: 800,
+  width: 960,
   height: 600,
   physics: {
     default: 'arcade',
+    arcade: {
+      debug: true
+    }
   },
   scene: [
     Preloader,
