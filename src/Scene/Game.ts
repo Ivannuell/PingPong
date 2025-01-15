@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { keyBindings } from "../types";
-import { Vector } from "matter";
+import Computer_paddle from "../computer_paddle";
 
 
 export class Game extends Phaser.Scene {
@@ -15,6 +15,9 @@ export class Game extends Phaser.Scene {
 
   KEYS!: keyBindings;
   player_paddle!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
+  comp!: Computer_paddle
+
+
   b_wall!: Phaser.Types.Physics.Arcade.ImageWithStaticBody
   t_wall!: Phaser.Types.Physics.Arcade.ImageWithStaticBody
   r_wall!: Phaser.Types.Physics.Arcade.ImageWithStaticBody
@@ -36,11 +39,9 @@ export class Game extends Phaser.Scene {
     this.board = this.add.image(0, 60, 'board').setOrigin(0).setScale(1.2, 1.2)
     this.ball = this.physics.add.image(400, 300, 'ball')
 
-    this.player_paddle = this.physics.add.image(50, 300, 'player').setImmovable().setFlipX(true)
-
+    this.player_paddle = this.physics.add.image(50, 300, 'player').setImmovable()
 
     this.ball.setVelocity(this.SPEED)
-
 
     this.b_wall = this.physics.add.staticImage(480, 625, 'player').setAlpha(0)
     this.t_wall = this.physics.add.staticImage(480, 30, 'player').setAlpha(0)
@@ -55,6 +56,8 @@ export class Game extends Phaser.Scene {
     this.player_paddle.setOrigin(0)
     this.ball.setCircle(15)
 
+    this.comp = new Computer_paddle(this, this.ball, this.DIRECTION)
+
     this.physics.add.collider(this.ball, [this.b_wall], () => {
       this.ball.setVelocity(this.upMotion.x, this.upMotion.y)
       this.ACELERATION += 10
@@ -67,14 +70,16 @@ export class Game extends Phaser.Scene {
       this.SPEED += 5
 
     })
-    this.physics.add.collider(this.ball, [this.r_wall], () => {
+    this.physics.add.collider(this.ball, [this.comp, this.r_wall], () => {
       this.ball.setVelocity(this.leftMotion.x, this.leftMotion.y * Phaser.Math.FloatBetween(-1, 1))
       this.DIRECTION = -1;
-
+      this.comp.updateDir(this.DIRECTION)
+      
     })
     this.physics.add.collider(this.ball, [this.player_paddle, this.l_wall], () => {
       this.ball.setVelocity(this.rightMotion.x, this.rightMotion.y * Phaser.Math.FloatBetween(-1, 1))
       this.DIRECTION = 1
+      this.comp.updateDir(this.DIRECTION)
     })
 
     this.KEYS = this.input.keyboard?.addKeys(this.key_conf) as keyBindings
@@ -107,7 +112,18 @@ export class Game extends Phaser.Scene {
       this.player_paddle.y += 10
     }
 
-  }
+    // if (this.trigger) {
+    //   this.comp.y += 8
+    //   if (this.comp.y >= 500) this.trigger = false
+    // } else {
+    //   this.comp.y -= 8
+    //   if (this.comp.y <= 100) this.trigger = true
+    // }
 
+    this.comp.update()
+
+    
+
+  }
 
 }

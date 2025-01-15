@@ -12,8 +12,8 @@ export class Preloader extends Phaser.Scene {
     this.load.setPath('public/assets/arts')
 
     this.load.image('ball', "Ball.png")
-    this.load.image('player', "Player.png")
-    this.load.image('computer', "Computer.png")
+    this.load.image('computer', "Player.png")
+    this.load.image('player', "Computer.png")
     this.load.image('board', "Board.png")
   }
 
