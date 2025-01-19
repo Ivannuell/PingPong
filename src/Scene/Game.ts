@@ -34,8 +34,14 @@ export class Game extends Phaser.Scene {
   rightMotion!: Phaser.Math.Vector2
   leftMotion!: Phaser.Math.Vector2
 
+  score_1 = 0
+  score_2 = 0
+
+  justScored = false
+
 
   create() {
+    
     this.board = this.add.image(0, 60, 'board').setOrigin(0).setScale(1.2, 1.2)
     this.ball = this.physics.add.image(400, 300, 'ball')
 
@@ -55,6 +61,7 @@ export class Game extends Phaser.Scene {
 
     this.player_paddle.setOrigin(0)
     this.ball.setCircle(15)
+    this.ball.setMaxVelocity(800)
 
     this.comp = new Computer_paddle(this, this.ball, this.DIRECTION)
 
@@ -70,21 +77,34 @@ export class Game extends Phaser.Scene {
       this.SPEED += 5
 
     })
-    this.physics.add.collider(this.ball, [this.comp, this.r_wall], () => {
+    this.physics.add.collider(this.ball, [this.comp], () => {
       this.ball.setVelocity(this.leftMotion.x, this.leftMotion.y * Phaser.Math.FloatBetween(-1, 1))
       this.DIRECTION = -1;
       this.comp.updateDir(this.DIRECTION)
       
     })
-    this.physics.add.collider(this.ball, [this.player_paddle, this.l_wall], () => {
+    this.physics.add.collider(this.ball, [this.player_paddle], () => {
       this.ball.setVelocity(this.rightMotion.x, this.rightMotion.y * Phaser.Math.FloatBetween(-1, 1))
       this.DIRECTION = 1
       this.comp.updateDir(this.DIRECTION)
     })
+    
+    this.physics.add.collider(this.ball, this.l_wall, () => {
+      this.ball.setVelocity(this.rightMotion.x, this.rightMotion.y * Phaser.Math.FloatBetween(-1, 1))
+      this.DIRECTION = 1
+      this.comp.updateDir(this.DIRECTION)
+      this.updateScore(1)
+    })
+    
+    this.physics.add.collider(this.ball, this.r_wall, () => {
+      this.ball.setVelocity(this.leftMotion.x, this.leftMotion.y * Phaser.Math.FloatBetween(-1, 1))
+      this.DIRECTION = -1;
+      this.comp.updateDir(this.DIRECTION)
+      this.updateScore(2)
+    })
 
     this.KEYS = this.input.keyboard?.addKeys(this.key_conf) as keyBindings
-
-
+    this.scene.run('UserInterface', this).setVisible(true)
 
   }
 
@@ -112,18 +132,41 @@ export class Game extends Phaser.Scene {
       this.player_paddle.y += 10
     }
 
-    // if (this.trigger) {
-    //   this.comp.y += 8
-    //   if (this.comp.y >= 500) this.trigger = false
-    // } else {
-    //   this.comp.y -= 8
-    //   if (this.comp.y <= 100) this.trigger = true
-    // }
-
     this.comp.update()
 
-    
+  }
 
+  
+
+  updateScore(Scorrer: number): void {
+    if (Scorrer == 1) {
+
+      if (!this.justScored){
+        this.score_1 += 1
+        this.justScored = true
+      }
+
+      if (this.ball.x < 850){
+        this.justScored = false
+      }
+      
+
+    } else {
+      if (!this.justScored){
+        this.score_2 += 1
+        this.justScored = true
+      }
+
+      if (this.ball.x > 150){
+        this.justScored = false
+      }
+
+    }
+
+    this.events.emit('score', Scorrer, this.score_1, this.score_2)
+
+    console.log('PLAYER 1 = ', this.score_1)
+    console.log('COMP = ', this.score_2)
   }
 
 }

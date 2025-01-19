@@ -2,6 +2,7 @@ import Phaser from "phaser";
 
 import { Preloader } from "./Scene/Preloader";
 import { Game } from "./Scene/Game";
+import UserInterface from "./Scene/User_Interface";
 
 
 
@@ -16,7 +17,8 @@ const config: Phaser.Types.Core.GameConfig = {
   },
   scene: [
     Preloader,
-    Game
+    Game,
+    UserInterface
   ]
 
 }
