@@ -2,7 +2,7 @@ import Phaser from "phaser";
 
 import { Preloader } from "./Scene/Preloader";
 import { Game } from "./Scene/Game";
-import UserInterface from "./Scene/User_Interface";
+import UserInterface from "./Scene/GameInterface";
 
 
 

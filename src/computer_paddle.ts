@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 
-
 export default class Computer_paddle extends Phaser.Physics.Arcade.Image {
   constructor(scene: Phaser.Scene, public ball: Phaser.GameObjects.Image, public direction: number) {
     super(scene, 910, 300, 'computer')
@@ -14,7 +13,7 @@ export default class Computer_paddle extends Phaser.Physics.Arcade.Image {
   }
 
   private TRACKING_DISTANCE = 180
-  private TRACKING_SPEED = 300
+  private TRACKING_SPEED = 500
   private PADDLE_ACCELARATION = 0.2
 
   update() {

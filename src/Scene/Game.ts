@@ -39,11 +39,18 @@ export class Game extends Phaser.Scene {
 
   justScored = false
 
+  ballMotion! : Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
 
   create() {
-    
+
     this.board = this.add.image(0, 60, 'board').setOrigin(0).setScale(1.2, 1.2)
     this.ball = this.physics.add.image(400, 300, 'ball')
+
+
+    this.ballMotion = this.physics.add.image(this.ball.x, this.ball.y, "ballMotion").setBelow(this.ball)
+    this.ballMotion.setDisplayOrigin(this.ballMotion.width, 0)
+    this.ballMotion.setAlpha(0.3)
+    // this.ballMotion.setAngle(90)
 
     this.player_paddle = this.physics.add.image(50, 300, 'player').setImmovable()
 
@@ -61,7 +68,7 @@ export class Game extends Phaser.Scene {
 
     this.player_paddle.setOrigin(0)
     this.ball.setCircle(15)
-    this.ball.setMaxVelocity(800)
+    this.ball.setMaxVelocity(700)
 
     this.comp = new Computer_paddle(this, this.ball, this.DIRECTION)
 
@@ -69,31 +76,36 @@ export class Game extends Phaser.Scene {
       this.ball.setVelocity(this.upMotion.x, this.upMotion.y)
       this.ACELERATION += 10
       this.SPEED += 5
+      this.ballMotion.setAlpha(0.3)
 
     })
     this.physics.add.collider(this.ball, [this.t_wall], () => {
       this.ball.setVelocity(this.downMotion.x, this.downMotion.y)
       this.ACELERATION += 10
       this.SPEED += 5
+      this.ballMotion.setAlpha(0.3)
 
     })
     this.physics.add.collider(this.ball, [this.comp], () => {
-      this.ball.setVelocity(this.leftMotion.x, this.leftMotion.y * Phaser.Math.FloatBetween(-1, 1))
+      this.ball.setVelocity(this.leftMotion.x - 100, this.leftMotion.y * Phaser.Math.FloatBetween(-1, 1))
       this.DIRECTION = -1;
       this.comp.updateDir(this.DIRECTION)
-      
+      this.ballMotion.setAlpha(1)
+
     })
     this.physics.add.collider(this.ball, [this.player_paddle], () => {
-      this.ball.setVelocity(this.rightMotion.x, this.rightMotion.y * Phaser.Math.FloatBetween(-1, 1))
+      this.ball.setVelocity(this.rightMotion.x + 100, this.rightMotion.y * Phaser.Math.FloatBetween(-1, 1))
       this.DIRECTION = 1
       this.comp.updateDir(this.DIRECTION)
+      this.ballMotion.setAlpha(1)
     })
-    
+
     this.physics.add.collider(this.ball, this.l_wall, () => {
       this.ball.setVelocity(this.rightMotion.x, this.rightMotion.y * Phaser.Math.FloatBetween(-1, 1))
       this.DIRECTION = 1
       this.comp.updateDir(this.DIRECTION)
       this.updateScore(1)
+      this.ballMotion.setAlpha(0.3)
     })
     
     this.physics.add.collider(this.ball, this.r_wall, () => {
@@ -101,12 +113,17 @@ export class Game extends Phaser.Scene {
       this.DIRECTION = -1;
       this.comp.updateDir(this.DIRECTION)
       this.updateScore(2)
+      this.ballMotion.setAlpha(0.3)
     })
 
     this.KEYS = this.input.keyboard?.addKeys(this.key_conf) as keyBindings
-    this.scene.run('UserInterface', this).setVisible(true)
+    this.scene.run('GameInterface', this).setVisible(true)
 
   }
+
+
+  prevY = 0
+  prevX = 0
 
   update() {
     this.upMotion = new Phaser.Math.Vector2(this.SPEED * this.DIRECTION, -this.SPEED)
@@ -134,30 +151,44 @@ export class Game extends Phaser.Scene {
 
     this.comp.update()
 
+
+    const p1 = new Phaser.Math.Vector2(this.prevX, this.prevY)
+    const p2 = new Phaser.Math.Vector2(this.ball.x, this.ball.y )
+
+    this.ballMotion.setPosition(this.ball.x, this.ball.y)
+    this.ballMotion.setAngle(Phaser.Math.RadToDeg(Phaser.Math.Angle.BetweenPoints(p1, p2)) + 45)
+    // this.ballMotion.setAngle(Phaser.Math.RadToDeg(Phaser.Math.Angle.BetweenPoints(p1, p2)) + 45)
+
+
+    // console.log('x - ', this.ball.getLocalTransformMatrix().e, ' y - ', this.ball.getLocalTransformMatrix().
+    this.prevY = this.ball.y
+    this.prevX = this.ball.x
+
+
   }
 
-  
+
 
   updateScore(Scorrer: number): void {
     if (Scorrer == 1) {
 
-      if (!this.justScored){
+      if (!this.justScored) {
         this.score_1 += 1
         this.justScored = true
       }
 
-      if (this.ball.x < 850){
+      if (this.ball.x < 850) {
         this.justScored = false
       }
-      
+
 
     } else {
-      if (!this.justScored){
+      if (!this.justScored) {
         this.score_2 += 1
         this.justScored = true
       }
 
-      if (this.ball.x > 150){
+      if (this.ball.x > 150) {
         this.justScored = false
       }
 
