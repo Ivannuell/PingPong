@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { keyBindings } from "../types";
 import Computer_paddle from "../core/computer_paddle";
 import { Ball } from "../core/Ball";
-import { ACELERATION, SPEED } from "../constants";
+import { SPEED } from "../constants";
 
 
 export class Game extends Phaser.Scene {
@@ -50,14 +50,15 @@ export class Game extends Phaser.Scene {
     this.ball.setVelocity(SPEED)
     this.ball.setMaxVelocity(700)
 
-    this.ball.setBounce(1,1)
+    // this.ball.setBounce(1,1)
 
     this.ballMotion = this.physics.add.image(this.ball.x, this.ball.y, "ballMotion")
     this.ballMotion.setDisplayOrigin(this.ballMotion.width, 0)
     this.ballMotion.setAlpha(0.3)
     // this.ballMotion.setAngle(90)
 
-    this.player_paddle = this.physics.add.image(50, 300, 'player').setImmovable()
+    this.player_paddle = this.physics.add.image(50, 300, 'player').setImmovable().setData('name', 'player')
+    this.comp = new Computer_paddle(this, this.ball, this.ball.direction).setData('name', 'computer')
 
     this.b_wall = this.physics.add.staticImage(480, 625, 'player').setAlpha(0).setData('name', 'BotWall')
     this.t_wall = this.physics.add.staticImage(480, 30, 'player').setAlpha(0).setData('name', 'TopWall')
@@ -71,55 +72,10 @@ export class Game extends Phaser.Scene {
 
     this.player_paddle.setOrigin(0)
 
-    this.comp = new Computer_paddle(this, this.ball, this.ball.direction)
-
     this.ball.ballCollider([this.b_wall, this.t_wall, this.r_wall, this.l_wall, this.player_paddle, this.comp])
-
-
-
-    // this.physics.add.collider(this.ball, [this.b_wall], () => {
-    //   this.ball.setVelocity(this.upMotion.x, this.upMotion.y)
-    //   this.ballMotion.setAlpha(0.3)
-    // })
-
-    // this.physics.add.collider(this.ball, [this.t_wall], () => {
-    //   this.ball.setVelocity(this.downMotion.x, this.downMotion.y)
-    //   this.ballMotion.setAlpha(0.3)
-    // })
-
-    // this.physics.add.collider(this.ball, [this.comp], () => {
-    //   this.ball.setVelocity(this.leftMotion.x - 100, this.leftMotion.y * Phaser.Math.FloatBetween(-1, 1))
-    //   this.ball.direction = -1
-    //   this.comp.updateDir(this.ball.direction)
-    //   this.ballMotion.setAlpha(1)
-
-    // })
-    // this.physics.add.collider(this.ball, [this.player_paddle], () => {
-    //   this.ball.setVelocity(this.rightMotion.x + 100, this.rightMotion.y * Phaser.Math.FloatBetween(-1, 1))
-    //   this.ball.direction = 1
-    //   this.comp.updateDir(this.ball.direction)
-    //   this.ballMotion.setAlpha(1)
-    // })
-
-    // this.physics.add.collider(this.ball, this.l_wall, () => {
-    //   this.ball.setVelocity(this.rightMotion.x, this.rightMotion.y * Phaser.Math.FloatBetween(-1, 1))
-    //   this.ball.direction = 1
-    //   this.comp.updateDir(this.ball.direction)
-    //   this.updateScore(1)
-    //   this.ballMotion.setAlpha(0.3)
-    // })
-
-    // this.physics.add.collider(this.ball, this.r_wall, () => {
-    //   this.ball.setVelocity(this.leftMotion.x, this.leftMotion.y * Phaser.Math.FloatBetween(-1, 1))
-    //   this.ball.direction = -1
-    //   this.comp.updateDir(this.ball.direction)
-    //   this.updateScore(2)
-    //   this.ballMotion.setAlpha(0.3)
-    // })
 
     this.KEYS = this.input.keyboard?.addKeys(this.key_conf) as keyBindings
     this.scene.run('GameInterface', this).setVisible(true)
-
 
     this.timer = this.time.addEvent({
       // loop: true,
@@ -133,6 +89,10 @@ export class Game extends Phaser.Scene {
     })
 
     this.ball.colliderListeners()
+    this.events.addListener('updateScore', (scorrer: number) => {
+      this.updateScore(scorrer)
+    })
+
 
     // this.t_wall!.body.onCollide = true
     // this.physics.world.on('collide', (object1, object2, body1, body2) => {
@@ -148,12 +108,6 @@ export class Game extends Phaser.Scene {
 
 
   update() {
-
-
-    this.upMotion = new Phaser.Math.Vector2(SPEED * this.ball.direction, -SPEED)
-    this.downMotion = new Phaser.Math.Vector2(SPEED * this.ball.direction, SPEED)
-    this.rightMotion = new Phaser.Math.Vector2(SPEED + ACELERATION, SPEED)
-    this.leftMotion = new Phaser.Math.Vector2(-SPEED - ACELERATION, SPEED)
 
     const paddle_size = this.player_paddle.getBottomCenter().y - this.player_paddle.getTopCenter().y
 
@@ -183,8 +137,6 @@ export class Game extends Phaser.Scene {
 
   }
 
-
-
   updateScore(Scorrer: number): void {
     if (Scorrer == 1) {
 
@@ -212,5 +164,6 @@ export class Game extends Phaser.Scene {
 
     this.events.emit('score', Scorrer, this.score_1, this.score_2)
   }
+
 
 }
