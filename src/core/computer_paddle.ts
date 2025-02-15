@@ -27,18 +27,25 @@ export default class Computer_paddle extends Phaser.Physics.Arcade.Image {
 
     if (ball_y > this.y && (ball_x > this.TRACKING_DISTANCE)) {
       // this.y += 8
-      this.setAccelerationY(this.PADDLE_ACCELARATION)
-      this.setVelocityY(this.TRACKING_SPEED)
-      if (this.y >= 600 + (this.getBottomCenter().y - this.getTopCenter().y) * 2) {
-        this.setVelocityY(0)
-      }
+      this.scene.time.delayedCall(70, () => {
+
+        this.setAccelerationY(this.PADDLE_ACCELARATION)
+        this.setVelocityY(this.TRACKING_SPEED)
+        if (this.y >= 600 + (this.getBottomCenter().y - this.getTopCenter().y) * 2) {
+          this.setVelocityY(0)
+        }
+      })
     } else if (ball_y < this.y && (ball_x > this.TRACKING_DISTANCE)) {
       // this.y -= 8
-      this.setAccelerationY(-this.PADDLE_ACCELARATION)
-      this.setVelocityY(-this.TRACKING_SPEED)
-      if (this.y <= 60 - (this.getBottomCenter().y - this.getTopCenter().y) * 2) {
-        this.setVelocityY(0)
-      }
+
+      this.scene.time.delayedCall(70, () => {
+        
+        this.setAccelerationY(-this.PADDLE_ACCELARATION)
+        this.setVelocityY(-this.TRACKING_SPEED)
+        if (this.y <= 60 - (this.getBottomCenter().y - this.getTopCenter().y) * 2) {
+          this.setVelocityY(0)
+        }
+      })
     } else if (ball_x != this.TRACKING_DISTANCE) {
       this.setVelocityY(0)
     }
