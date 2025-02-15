@@ -4,7 +4,7 @@ import { ACELERATION, SPEED } from "../constants"
 export class Ball extends Phaser.Physics.Arcade.Image {
   direction = 1
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: Phaser.Scene, private updateComp: (direction: number) => void) {
     super(scene, 300, 300, 'ball')
     scene.physics.add.existing(this)
     scene.add.existing(this)
@@ -20,8 +20,6 @@ export class Ball extends Phaser.Physics.Arcade.Image {
   }
 
   colliderListeners() {
-
-
     this.scene.physics.world.on('collide', (_obj1: Phaser.GameObjects.GameObject, obj2: Phaser.GameObjects.GameObject) => {
 
       switch (obj2.getData('name')) {
@@ -40,6 +38,7 @@ export class Ball extends Phaser.Physics.Arcade.Image {
         case 'LeftWall': {
           this.setVelocity(this.motionDirections()[2].x , this.motionDirections()[2].y)
           this.direction = 1
+          this.updateComp(this.direction)
           this.scene.events.emit('updateScore', 1)
           break;
         }
@@ -47,12 +46,14 @@ export class Ball extends Phaser.Physics.Arcade.Image {
         case 'player': {
           this.setVelocity(this.motionDirections()[2].x , this.motionDirections()[2].y)
           this.direction = 1
+          this.updateComp(this.direction)
           break;
         }
         
         case 'RighWall': {
           this.setVelocity(this.motionDirections()[3].x , this.motionDirections()[3].y)
           this.direction = -1
+          this.updateComp(this.direction)
           this.scene.events.emit('updateScore', 2)
           break;
         }
@@ -60,6 +61,7 @@ export class Ball extends Phaser.Physics.Arcade.Image {
         case 'computer': {
           this.setVelocity(this.motionDirections()[3].x , this.motionDirections()[3].y)
           this.direction = -1
+          this.updateComp(this.direction)
           break;
         }
       }

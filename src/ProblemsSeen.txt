@@ -1,0 +1,4 @@
+
+
+- The way the comp_paddle update its own direction variable is obscure. 
+  => Its on the ball class

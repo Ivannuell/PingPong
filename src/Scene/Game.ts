@@ -27,13 +27,7 @@ export class Game extends Phaser.Scene {
   ball!: Ball
   board!: Phaser.GameObjects.Image
 
-  // DIRECTION = 1
   TIME_LIMIT = 5
-
-  upMotion!: Phaser.Math.Vector2
-  downMotion!: Phaser.Math.Vector2
-  rightMotion!: Phaser.Math.Vector2
-  leftMotion!: Phaser.Math.Vector2
 
   score_1 = 0
   score_2 = 0
@@ -46,16 +40,13 @@ export class Game extends Phaser.Scene {
   create() {
 
     this.board = this.add.image(0, 60, 'board').setOrigin(0).setScale(1.2, 1.2)
-    this.ball = new Ball(this)
+    this.ball = new Ball(this, (direction: number) => this.updateComp(direction))
     this.ball.setVelocity(SPEED)
     this.ball.setMaxVelocity(700)
-
-    // this.ball.setBounce(1,1)
 
     this.ballMotion = this.physics.add.image(this.ball.x, this.ball.y, "ballMotion")
     this.ballMotion.setDisplayOrigin(this.ballMotion.width, 0)
     this.ballMotion.setAlpha(0.3)
-    // this.ballMotion.setAngle(90)
 
     this.player_paddle = this.physics.add.image(50, 300, 'player').setImmovable().setData('name', 'player')
     this.comp = new Computer_paddle(this, this.ball, this.ball.direction).setData('name', 'computer')
@@ -78,34 +69,19 @@ export class Game extends Phaser.Scene {
     this.scene.run('GameInterface', this).setVisible(true)
 
     this.timer = this.time.addEvent({
-      // loop: true,
-      delay: 1000,
+      delay: 30000,
       callback: () => {
-        console.log(this.TIME_LIMIT);
-        this.TIME_LIMIT -= 1
-      },
-      repeat: 5,
-
+        console.log("Timer done")
+      }
     })
 
     this.ball.colliderListeners()
     this.events.addListener('updateScore', (scorrer: number) => {
       this.updateScore(scorrer)
     })
-
-
-    // this.t_wall!.body.onCollide = true
-    // this.physics.world.on('collide', (object1, object2, body1, body2) => {
-    //   if (object2 == this.t_wall) {
-    //     this.ball.setVelocity(this.downMotion.x, this.downMotion.y)
-    //     this.ballMotion.setAlpha(0.3)
-    //   }
-    // })
-
   }
 
   
-
 
   update() {
 
@@ -163,6 +139,10 @@ export class Game extends Phaser.Scene {
     }
 
     this.events.emit('score', Scorrer, this.score_1, this.score_2)
+  }
+
+  updateComp(direction: number) {
+    this.comp.updateDir(direction)
   }
 
 
